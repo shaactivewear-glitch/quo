@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>報價單系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f7f6f2; 
+            padding: 40px 20px;
+            color: #333;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .quotation-container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .brand-name input {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            width: 300px;
+        }
+
+        .doc-info {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #666;
+        }
+
+        .client-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            border-bottom: 1px solid #ddd; 
+            padding-bottom: 5px;
+        }
+
+        .info-label {
+            color: #888;
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .item-table th {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding: 10px 8px;
+        }
+
+        .item-table td {
+            border-bottom: 1px solid #ddd; 
+            padding: 10px 8px;
+            vertical-align: middle;
+        }
+
+        .summary-section {
+            margin-top: 0;
+            border-top: 1px solid #333;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px dotted #ccc;
+            padding: 8px 0;
+        }
+
+        .summary-row:last-child {
+            border-bottom: 2px solid #333;
+            background-color: #fafafa;
+        }
+
+        .summary-label {
+            width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: 400;
+        }
+
+        .summary-value {
+            width: 150px;
+            text-align: right;
+            padding-right: 8px;
+            font-weight: 500;
+        }
+
+        .notes-section {
+            margin-top: 30px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .sig-box {
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        input, textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #333;
+            padding: 2px 4px;
+            resize: none;
+        }
+
+        input:focus, textarea:focus {
+            background-color: #f0f0f0;
+        }
+
+        .btn-action {
+            font-size: 12px;
+            color: #999;
+            cursor: pointer;
+            border: 1px solid #eee;
+            padding: 4px 12px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .btn-action:hover {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        @media print {
+            @page { size: A4; margin: 1cm; }
+            body { 
+                background: white !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .quotation-container { 
+                box-shadow: none !important; 
+                padding: 0 !important; 
+                width: 100% !important; 
+                max-width: none !important; 
+                margin: 0 !important; 
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quotation-container" id="print-area">
+    <!-- 標題部分 -->
+    <div class="header-section">
+        <div>
+            <div class="brand-name"><input type="text" value="瑜珈牆五金" id="brand-input"></div>
+            <div class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Quotation</div>
+        </div>
+        <div class="doc-info text-right">
+            <div>報價單編號：<input type="text" value="" placeholder="請輸入編號" id="doc-id" class="inline-block w-28 text-right"></div>
+            <div>報價日期：<input type="text" value="" placeholder="請輸入日期" id="doc-date" class="inline-block w-28 text-right"></div>
+        </div>
+    </div>
+
+    <!-- 客戶資料 -->
+    <div class="client-info-grid">
+        <div class="info-item"><span class="info-label">客戶名稱</span><input type="text" value="" placeholder="請輸入客戶名稱"></div>
+        <div class="info-item"><span class="info-label">聯絡人員</span><input type="text" placeholder="聯絡人姓名"></div>
+        <div class="info-item"><span class="info-label">電子信箱</span><input type="text" placeholder="Email Address"></div>
+        <div class="info-item"><span class="info-label">聯絡電話</span><input type="text" placeholder="Phone Number"></div>
+        <div class="info-item col-span-2"><span class="info-label">送貨地址</span><input type="text" placeholder="Delivery Address"></div>
+        <!-- 自定義備註欄位 -->
+        <div class="info-item col-span-2"><span class="info-label">備註/其他資訊</span><input type="text" placeholder="例如：指定送貨時間、樓層資訊等..."></div>
+    </div>
+
+    <!-- 表格內容 -->
+    <table class="item-table" id="items-table">
+        <thead>
+            <tr>
+                <th style="width: 30%;">項目內容 Description</th>
+                <th style="width: 8%; text-align: center;">數量</th>
+                <th style="width: 8%; text-align: center;">單位</th>
+                <th style="width: 12%; text-align: right;">單價</th>
+                <th style="width: 14%; text-align: right;">費用 Amount</th>
+                <th style="width: 23%;">項目備註</th>
+                <th style="width: 5%;" class="no-print"></th>
+            </tr>
+        </thead>
+        <tbody id="items-body">
+            <!-- 提供三個初始空白列 -->
+            <tr>
+                <td><input type="text" placeholder="項目明細名稱..."></td>
+                <td><input type="number" class="text-center qty" oninput="calculate()"></td>
+                <td><input type="text" placeholder="組/件" class="text-center"></td>
+                <td><input type="number" class="text-right price" oninput="calculate()"></td>
+                <td class="text-right row-total"></td>
+                <td><input type="text" placeholder="項目細節備註..." value=""></td>
+                <td class="no-print text-center"><button class="text-gray-300 hover:text-red-500" onclick="deleteRow(this)">✕</button></td>
+            </tr>
+            <tr>
+                <td><input type="text" placeholder="項目明細名稱..."></td>
+                <td><input type="number" class="text-center qty" oninput="calculate()"></td>
+                <td><input type="text" placeholder="組/件" class="text-center"></td>
+                <td><input type="number" class="text-right price" oninput="calculate()"></td>
+                <td class="text-right row-total"></td>
+                <td><input type="text" placeholder="項目細節備註..." value=""></td>
+                <td class="no-print text-center"><button class="text-gray-300 hover:text-red-500" onclick="deleteRow(this)">✕</button></td>
+            </tr>
+            <tr>
+                <td><input type="text" placeholder="項目明細名稱..."></td>
+                <td><input type="number" class="text-center qty" oninput="calculate()"></td>
+                <td><input type="text" placeholder="組/件" class="text-center"></td>
+                <td><input type="number" class="text-right price" oninput="calculate()"></td>
+                <td class="text-right row-total"></td>
+                <td><input type="text" placeholder="項目細節備註..." value=""></td>
+                <td class="no-print text-center"><button class="text-gray-300 hover:text-red-500" onclick="deleteRow(this)">✕</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-4 no-print">
+        <button onclick="addRow()" class="btn-action">+ 新增項目 Row</button>
+    </div>
+
+    <!-- 結帳區 -->
+    <div class="summary-section mt-4">
+        <div class="summary-row">
+            <div class="summary-label">合計 Subtotal</div>
+            <div class="summary-value" id="subtotal">0</div>
+        </div>
+        <div class="summary-row">
+            <div class="summary-label">
+                <input type="number" id="tax-rate" value="5" class="w-8 text-center font-medium" oninput="calculate()">
+                <span>% 稅金 VAT</span>
+            </div>
+            <div class="summary-value" id="tax">0</div>
+        </div>
+        <div class="summary-row">
+            <div class="summary-label font-bold">總計 Total</div>
+            <div class="summary-value font-bold text-lg" id="total-amount">$0</div>
+        </div>
+    </div>
+
+    <!-- 備註說明 -->
+    <div class="notes-section">
+        <div class="font-bold mb-1">合作備註：</div>
+        <div class="space-y-1">
+            <div class="flex"><span class="mr-2">1.</span><input type="text" value="若有任何約定條款，請於簽訂本估價單時一併提出。"></div>
+            <div class="flex"><span class="mr-2">2.</span><textarea rows="2" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'">付款方式：頭款於報價單回簽後，7天內支付五成製作費；尾款50%則於交貨後30天內電匯支付。</textarea></div>
+            <div class="flex"><span class="mr-2">3.</span><input type="text" value="上述內容有未盡之處，雙方以最大誠意協商之。"></div>
+        </div>
+    </div>
+
+    <!-- 簽名 -->
+    <div class="signature-section">
+        <div class="sig-box">專案負責人簽章</div>
+        <div class="sig-box">客戶簽章</div>
+    </div>
+
+    <!-- 操作按鈕 -->
+    <div id="controls" class="mt-12 no-print flex flex-col items-center space-y-4">
+        <button onclick="handlePrint()" class="bg-stone-700 text-white px-12 py-4 rounded-sm text-sm tracking-widest hover:bg-stone-800 transition shadow-lg">
+            開啟列印/儲存視窗 (PDF)
+        </button>
+        <p class="text-xs text-gray-400 italic bg-gray-100 p-2 rounded">
+            提示：若點擊後無反應，請檢查瀏覽器上方網址列是否出現「已阻擋彈出視窗」，並請點擊「永遠允許」。
+        </p>
+    </div>
+</div>
+
+<script>
+    function addRow() {
+        const tbody = document.getElementById('items-body');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" placeholder="輸入項目名稱..."></td>
+            <td><input type="number" class="text-center qty" oninput="calculate()"></td>
+            <td><input type="text" placeholder="單位" class="text-center"></td>
+            <td><input type="number" class="text-right price" oninput="calculate()"></td>
+            <td class="text-right row-total"></td>
+            <td><input type="text" placeholder="項目備註..."></td>
+            <td class="no-print text-center"><button class="text-gray-300 hover:text-red-500" onclick="deleteRow(this)">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function deleteRow(btn) {
+        const row = btn.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+        calculate();
+    }
+
+    function calculate() {
+        const rows = document.querySelectorAll('#items-body tr');
+        let subtotal = 0;
+
+        rows.forEach(row => {
+            const qtyInput = row.querySelector('.qty');
+            const priceInput = row.querySelector('.price');
+            const rowTotalCell = row.querySelector('.row-total');
+            
+            const qty = parseFloat(qtyInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            
+            if (qty && price) {
+                const total = qty * price;
+                rowTotalCell.textContent = total.toLocaleString();
+                subtotal += total;
+            } else {
+                rowTotalCell.textContent = '';
+            }
+        });
+
+        const rate = parseFloat(document.getElementById('tax-rate').value) || 0;
+        const tax = Math.round(subtotal * (rate / 100));
+        const grandTotal = subtotal + tax;
+
+        document.getElementById('subtotal').textContent = subtotal.toLocaleString();
+        document.getElementById('tax').textContent = tax.toLocaleString();
+        document.getElementById('total-amount').textContent = '$' + grandTotal.toLocaleString();
+    }
+
+    function handlePrint() {
+        // 同步實際輸入內容到 value 屬性
+        document.querySelectorAll('input').forEach(el => el.setAttribute('value', el.value));
+        document.querySelectorAll('textarea').forEach(el => el.textContent = el.value);
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('彈出視窗被阻擋了！請允許彈出視窗後再試一次。');
+            return;
+        }
+
+        const head = document.head.innerHTML;
+        const contentClone = document.getElementById('print-area').cloneNode(true);
+        
+        // 將複製內容中所有的 input 和 textarea 取代成純文字 span / div
+        contentClone.querySelectorAll('input').forEach(input => {
+            const span = document.createElement('span');
+            span.textContent = input.value || ''; 
+            
+            if (input.classList.contains('text-center')) span.style.textAlign = 'center';
+            if (input.classList.contains('text-right')) span.style.textAlign = 'right';
+            
+            span.style.display = 'inline-block';
+            span.style.width = '100%';
+            span.className = input.className; 
+            
+            input.parentNode.replaceChild(span, input);
+        });
+
+        contentClone.querySelectorAll('textarea').forEach(textarea => {
+            const div = document.createElement('div');
+            div.textContent = textarea.value || '';
+            div.style.whiteSpace = 'pre-wrap';
+            div.style.width = '100%';
+            div.className = textarea.className;
+            
+            textarea.parentNode.replaceChild(div, textarea);
+        });
+
+        // 移除控制按鈕
+        const controls = contentClone.querySelector('#controls');
+        if (controls) controls.remove();
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    ${head}
+                    <style>
+                        body { 
+                            background: white !important; 
+                            padding: 20px !important; 
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        .no-print { display: none !important; }
+                        
+                        /* 確保列印新分頁中的格線強效顯出 */
+                        .item-table th {
+                            border-bottom: 2px solid #333 !important;
+                        }
+                        .item-table td {
+                            border-bottom: 1px solid #ccc !important;
+                        }
+                        .info-item {
+                            border-bottom: 1px solid #ccc !important;
+                        }
+                        .header-section {
+                            border-bottom: 2px solid #333 !important;
+                        }
+                        .summary-section {
+                            border-top: 1px solid #333 !important;
+                        }
+                        .summary-row {
+                            border-bottom: 1px dotted #ccc !important;
+                        }
+                        .summary-row:last-child {
+                            border-bottom: 2px solid #333 !important;
+                            background-color: #fafafa !important;
+                        }
+
+                        span, div { 
+                            border: none !important; 
+                            background: transparent !important; 
+                        }
+                        .quotation-container { box-shadow: none !important; margin: 0 auto !important; }
+                    </style>
+                </head>
+                <body>
+                    <div style="width: 900px; margin: 0 auto;">
+                        ${contentClone.innerHTML}
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(() => {
+                                window.print();
+                            }, 800);
+                        };
+                    <\/script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    window.onload = calculate;
+</script>
+
+</body>
+</html>
